@@ -1339,10 +1339,77 @@ RTLMP_ARGS:
   description: >
     Overrides all other RTL macro placer arguments.
 
+RTLMP_HYBRID:
+  description: >
+    Macro placer mode. Use `hybrid` or `1` for timing-aware local search after
+    baseline placement. Use `tahpp` for Partial TAHPP (GPU population search +
+    STA refinement on elites).
+  stages:
+    - floorplan
 RTLMP_VIRTUAL_PLACE:
   description: >
     Run a lightweight global placement warm start before macro placement.
   default: 0
+  stages:
+    - floorplan
+RTLMP_GPU:
+  description: >
+    Enable GPU batch evaluation when RTLMP_HYBRID=tahpp (requires BUILD_TAHPP_GPU).
+  default: 0
+  stages:
+    - floorplan
+RTLMP_POP_SIZE:
+  description: >
+    Population size per island for TAHPP.
+  default: 32
+  stages:
+    - floorplan
+RTLMP_NUM_ISLANDS:
+  description: >
+    Number of GA islands for TAHPP.
+  default: 4
+  stages:
+    - floorplan
+RTLMP_NUM_GENERATIONS:
+  description: >
+    GA generations for TAHPP.
+  default: 20
+  stages:
+    - floorplan
+RTLMP_INIT_POPULATION:
+  description: >
+    Initial seeded population size for TAHPP.
+  default: 256
+  stages:
+    - floorplan
+RTLMP_ELITE_COUNT:
+  description: >
+    Number of Pareto elites for STA refinement in TAHPP.
+  default: 4
+  stages:
+    - floorplan
+RTLMP_GPU_BATCH:
+  description: >
+    Batch size for GPU/CPU fitness evaluation in TAHPP.
+  default: 64
+  stages:
+    - floorplan
+RTLMP_WNS_WEIGHT:
+  description: >
+    Fitness weight for timing affinity surrogate in TAHPP.
+  default: 0.5
+  stages:
+    - floorplan
+RTLMP_AREA_WEIGHT:
+  description: >
+    Fitness weight for floorplan area in TAHPP.
+  default: 0.25
+  stages:
+    - floorplan
+RTLMP_WL_WEIGHT:
+  description: >
+    Fitness weight for HPWL in TAHPP.
+  default: 0.25
   stages:
     - floorplan
 RTLMP_TIMING_WT:
@@ -1361,8 +1428,6 @@ RTLMP_CANDIDATE_RADIUS:
   description: >
     Search radius in microns for hybrid macro candidate moves.
   default: 40.0
-  stages:
-    - floorplan
   stages:
     - floorplan
 GDS_ALLOW_EMPTY:

@@ -61,13 +61,37 @@ if { [find_macros] != "" } {
   append additional_rtlmp_args " -target_util [place_density_with_lb_addon]"
 
   set hybrid_args ""
-  if { [env_var_exists_and_non_empty RTLMP_HYBRID] && \
-       ([string tolower $::env(RTLMP_HYBRID)] == "1" || \
-        [string tolower $::env(RTLMP_HYBRID)] == "true" || \
-        [string tolower $::env(RTLMP_HYBRID)] == "hybrid") } {
+  set rtlmp_hybrid_mode ""
+  if { [env_var_exists_and_non_empty RTLMP_HYBRID] } {
+    set rtlmp_hybrid_mode [string tolower $::env(RTLMP_HYBRID)]
+  }
+
+  if { $rtlmp_hybrid_mode == "1" || $rtlmp_hybrid_mode == "true" \
+       || $rtlmp_hybrid_mode == "hybrid" } {
     append_env_var hybrid_args RTLMP_TIMING_WT -timing_weight 1
     append_env_var hybrid_args RTLMP_HYBRID_ITERATIONS -hybrid_iterations 1
     append_env_var hybrid_args RTLMP_CANDIDATE_RADIUS -candidate_radius 1
+  }
+
+  if { $rtlmp_hybrid_mode == "tahpp" } {
+    append hybrid_args " -tahpp_mode"
+    append_env_var hybrid_args RTLMP_TIMING_WT -timing_weight 1
+    append_env_var hybrid_args RTLMP_HYBRID_ITERATIONS -hybrid_iterations 1
+    append_env_var hybrid_args RTLMP_CANDIDATE_RADIUS -candidate_radius 1
+    if { [env_var_exists_and_non_empty RTLMP_GPU] && \
+         ([string tolower $::env(RTLMP_GPU)] == "1" || \
+          [string tolower $::env(RTLMP_GPU)] == "true") } {
+      append hybrid_args " -use_gpu"
+    }
+    append_env_var hybrid_args RTLMP_POP_SIZE -pop_size 1
+    append_env_var hybrid_args RTLMP_NUM_ISLANDS -num_islands 1
+    append_env_var hybrid_args RTLMP_NUM_GENERATIONS -num_generations 1
+    append_env_var hybrid_args RTLMP_INIT_POPULATION -init_population 1
+    append_env_var hybrid_args RTLMP_ELITE_COUNT -elite_count 1
+    append_env_var hybrid_args RTLMP_GPU_BATCH -gpu_batch_size 1
+    append_env_var hybrid_args RTLMP_WNS_WEIGHT -wns_weight 1
+    append_env_var hybrid_args RTLMP_AREA_WEIGHT -area_weight_fitness 1
+    append_env_var hybrid_args RTLMP_WL_WEIGHT -wl_weight 1
   }
 
   if { [env_var_exists_and_non_empty RTLMP_VIRTUAL_PLACE] && \
@@ -79,13 +103,10 @@ if { [find_macros] != "" } {
   }
 
   set command_name rtl_macro_placer
-  if { [env_var_exists_and_non_empty RTLMP_HYBRID] } {
-    if { [string tolower $::env(RTLMP_HYBRID)] == "1" || \
-         [string tolower $::env(RTLMP_HYBRID)] == "true" || \
-         [string tolower $::env(RTLMP_HYBRID)] == "hybrid" } {
-      set command_name rtl_macro_placer_hybrid
-      append additional_rtlmp_args $hybrid_args
-    }
+  if { $rtlmp_hybrid_mode == "1" || $rtlmp_hybrid_mode == "true" \
+       || $rtlmp_hybrid_mode == "hybrid" || $rtlmp_hybrid_mode == "tahpp" } {
+    set command_name rtl_macro_placer_hybrid
+    append additional_rtlmp_args $hybrid_args
   }
 
   set all_args $additional_rtlmp_args

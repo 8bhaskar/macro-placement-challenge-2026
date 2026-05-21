@@ -57,6 +57,11 @@ sta::define_cmd_args "rtl_macro_placer_hybrid" { -max_num_macro  max_num_macro \
                                           -timing_weight timing_weight \
                                           -hybrid_iterations hybrid_iterations \
                                           -candidate_radius candidate_radius \
+                                          -tahpp_mode \
+                                          -use_gpu \
+                                          -pop_size -num_islands -num_generations \
+                                          -init_population -elite_count -gpu_batch_size \
+                                          -wns_weight -area_weight_fitness -wl_weight \
                                           -report_directory report_directory \
                                           -write_macro_placement file_name \
                                           -keep_clustering_data \
@@ -238,8 +243,10 @@ proc rtl_macro_placer_hybrid { args } {
          -boundary_weight -notch_weight \
          -macro_blockage_weight -target_util \
          -min_ar -timing_weight -hybrid_iterations -candidate_radius \
+         -pop_size -num_islands -num_generations -init_population \
+         -elite_count -gpu_batch_size -wns_weight -area_weight_fitness -wl_weight \
          -report_directory -write_macro_placement } \
-    flags {-keep_clustering_data}
+    flags {-keep_clustering_data -tahpp_mode -use_gpu}
 
   sta::check_argc_eq0 "rtl_macro_placer_hybrid" $args
 
@@ -275,6 +282,17 @@ proc rtl_macro_placer_hybrid { args } {
   set timing_weight 1.0
   set hybrid_iterations 6
   set candidate_radius 50.0
+  set tahpp_mode 0
+  set use_gpu 0
+  set pop_size 32
+  set num_islands 4
+  set num_generations 20
+  set init_population 256
+  set elite_count 4
+  set gpu_batch_size 64
+  set wns_weight 0.5
+  set area_weight_fitness 0.25
+  set wl_weight 0.25
   set report_directory "hier_rtlmp"
 
   if { [info exists keys(-max_num_macro)] } {
@@ -366,6 +384,39 @@ proc rtl_macro_placer_hybrid { args } {
   if { [info exists keys(-candidate_radius)] } {
     set candidate_radius $keys(-candidate_radius)
   }
+  if { [info exists flags(-tahpp_mode)] } {
+    set tahpp_mode 1
+  }
+  if { [info exists flags(-use_gpu)] } {
+    set use_gpu 1
+  }
+  if { [info exists keys(-pop_size)] } {
+    set pop_size $keys(-pop_size)
+  }
+  if { [info exists keys(-num_islands)] } {
+    set num_islands $keys(-num_islands)
+  }
+  if { [info exists keys(-num_generations)] } {
+    set num_generations $keys(-num_generations)
+  }
+  if { [info exists keys(-init_population)] } {
+    set init_population $keys(-init_population)
+  }
+  if { [info exists keys(-elite_count)] } {
+    set elite_count $keys(-elite_count)
+  }
+  if { [info exists keys(-gpu_batch_size)] } {
+    set gpu_batch_size $keys(-gpu_batch_size)
+  }
+  if { [info exists keys(-wns_weight)] } {
+    set wns_weight $keys(-wns_weight)
+  }
+  if { [info exists keys(-area_weight_fitness)] } {
+    set area_weight_fitness $keys(-area_weight_fitness)
+  }
+  if { [info exists keys(-wl_weight)] } {
+    set wl_weight $keys(-wl_weight)
+  }
   if { [info exists keys(-report_directory)] } {
     set report_directory $keys(-report_directory)
   }
@@ -396,6 +447,17 @@ proc rtl_macro_placer_hybrid { args } {
       $timing_weight \
       $hybrid_iterations \
       $candidate_radius \
+      $tahpp_mode \
+      $use_gpu \
+      $pop_size \
+      $num_islands \
+      $num_generations \
+      $init_population \
+      $elite_count \
+      $gpu_batch_size \
+      $wns_weight \
+      $area_weight_fitness \
+      $wl_weight \
       $report_directory \
       [info exists flags(-keep_clustering_data)]]
   } {
